@@ -17,7 +17,7 @@ func main() {
 	}
 
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(404, gin.H{"msh": "Not found"})
+		c.JSON(404, gin.H{"msg": "Not found"})
 	})
 
 	router.Run(":8080")
