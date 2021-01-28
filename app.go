@@ -12,9 +12,10 @@ func main() {
 	v1 := router.Group("/api/v1")
 	{
 		health := new(controllers.HealthController)
+		deviceController := new(controllers.DeviceController)
 
 		v1.GET("/health", health.Default)
-		v1.GET("/device/:id", controllers.FindDevice)
+		v1.GET("/device/:id", deviceController.FindDevice)
 	}
 
 	router.NoRoute(func(c *gin.Context) {
