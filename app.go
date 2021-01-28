@@ -14,6 +14,7 @@ func main() {
 		health := new(controllers.HealthController)
 
 		v1.GET("/health", health.Default)
+		v1.GET("/device/:id", controllers.FindDevice)
 	}
 
 	router.NoRoute(func(c *gin.Context) {
