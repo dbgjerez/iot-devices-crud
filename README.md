@@ -9,6 +9,7 @@ For example, how often the information is sent.
 * MongoDB: NoSQL database used to store the information about chips and sensors.
 * Gin-gonic: Framework used to develop the microservice.
 * GoDotEnv: library that facilitates working with enviroments variables
+* mongo-driver: library to work with MongoDB
 
 # Configuration
 | Variable | Default value | Description |
