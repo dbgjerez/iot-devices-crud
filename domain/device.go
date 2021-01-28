@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Device struct {
 	ID   string `json:"idDevice" bson:"_id"`
