@@ -15,3 +15,6 @@ For example, how often the information is sent.
 | Variable | Default value | Description |
 | ------ | ------ | ------ |
 | GIN_MODE | debug | Gin gonic mode. (release for production mode) |
+| MONGODB_HOST | "" | MongoDB host url. For example: mongodb://localhost:27017 |
+| MONGODB_DEVICE_DB | "" | Mongo database name |
+| MONGODB_DEVICE_COLLECTION_NAME | "" | Name of collection into de database |
