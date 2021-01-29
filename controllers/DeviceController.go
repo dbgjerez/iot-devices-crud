@@ -7,10 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DeviceController struct{}
+type DeviceController struct {
+}
+
+var repository = new(domain.DeviceRepository)
 
 func (d *DeviceController) FindDevice(c *gin.Context) {
-	var device domain.Device
-
+	device := repository.FindById(c.Param("id"))
 	c.JSON(http.StatusOK, gin.H{"data": device})
 }
