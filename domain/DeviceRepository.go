@@ -12,8 +12,9 @@ import (
 
 var server = os.Getenv("MONGODB_HOST")
 var dbName = os.Getenv("MONGODB_DEVICE_DB")
-var collectionName = os.Getenv("MONGODB_DEVICE_COLLECTION_NAME")
+var collectionName = os.Getenv("MONGODB_DEVICE_COLLECTION")
 var client = config.NewConnection(server)
+var collection = client.Database(dbName).Collection(collectionName)
 
 const id string = "_id"
 
@@ -25,7 +26,7 @@ func (repository *DeviceRepository) FindById(idDevice string) *Device {
 	defer cancel()
 	query := bson.D{primitive.E{Key: id, Value: idDevice}}
 	var device Device
-	err := client.Database(dbName).Collection(collectionName).FindOne(ctx, query).Decode(&device)
+	err := collection.FindOne(ctx, query).Decode(&device)
 	if err != nil {
 		return nil
 	}
