@@ -16,3 +16,8 @@ func (d *DeviceController) FindDevice(c *gin.Context) {
 	device := repository.FindById(c.Param("id"))
 	c.JSON(http.StatusOK, gin.H{"data": device})
 }
+
+func (d *DeviceController) FindDevices(c *gin.Context) {
+	devices := repository.FindAll()
+	c.JSON(http.StatusOK, gin.H{"data": devices})
+}

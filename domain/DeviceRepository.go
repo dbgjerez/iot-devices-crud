@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"iot-devices-crud/config"
+	"log"
 	"os"
 	"time"
 
@@ -31,4 +32,23 @@ func (repository *DeviceRepository) FindById(idDevice string) *Device {
 		return nil
 	}
 	return &device
+}
+
+func (repository *DeviceRepository) FindAll() []Device {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+	defer cancel()
+	cur, err := collection.Find(ctx, bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var devices []Device
+	for cur.Next(ctx) {
+		var device Device
+		err := cur.Decode(&device)
+		devices = append(devices, device)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	return devices
 }
