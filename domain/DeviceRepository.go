@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	mongopagination "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -34,21 +35,19 @@ func (repository *DeviceRepository) FindById(idDevice string) *Device {
 	return &device
 }
 
-func (repository *DeviceRepository) FindAll() []Device {
-	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
-	defer cancel()
-	cur, err := collection.Find(ctx, bson.D{})
+func (repository *DeviceRepository) FindAll(page int64, size int64) []Device {
+	filter := bson.D{}
+	paginatedDate, err := mongopagination.New(collection).Limit(size).Page(page).Filter(filter).Find()
 	if err != nil {
 		log.Fatal(err)
 	}
 	var devices []Device
-	for cur.Next(ctx) {
-		var device Device
-		err := cur.Decode(&device)
-		devices = append(devices, device)
-		if err != nil {
-			log.Fatal(err)
+	var device *Device
+	for _, raw := range paginatedDate.Data {
+		if marshallErr := bson.Unmarshal(raw, &device); marshallErr == nil {
+			devices = append(devices, *device)
 		}
+
 	}
 	return devices
 }
