@@ -10,6 +10,7 @@ For example, how often the information is sent.
 * Gin-gonic: Framework used to develop the microservice.
 * GoDotEnv: library that facilitates working with enviroments variables
 * mongo-driver: library to work with MongoDB
+* mongo-go-pagination: library helper to paginate MongoDB queries
 
 # Configuration
 | Variable | Default value | Description |

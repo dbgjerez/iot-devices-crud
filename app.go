@@ -15,7 +15,11 @@ func main() {
 		deviceController := new(controllers.DeviceController)
 
 		v1.GET("/health", health.Default)
+		v1.POST("/device", deviceController.CreateDevice)
 		v1.GET("/device/:id", deviceController.FindDevice)
+		v1.GET("/device", deviceController.FindDevices)
+		v1.DELETE("/device/:id", deviceController.DeleteDevice)
+		v1.PUT("/device/:id", deviceController.UpdateDevice)
 	}
 
 	router.NoRoute(func(c *gin.Context) {
