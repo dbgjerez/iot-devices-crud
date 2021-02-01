@@ -26,6 +26,17 @@ type DeviceController struct {
 
 var repository = new(domain.DeviceRepository)
 
+func (d *DeviceController) CreateDevice(c *gin.Context) {
+	var data domain.Device
+	if c.BindJSON(&data) != nil {
+		c.JSON(406, gin.H{"message": "Provide relevant fields"})
+		c.Abort()
+		return
+	}
+	device := repository.CreateDevice(data)
+	c.JSON(http.StatusCreated, gin.H{ParamDataName: device})
+}
+
 func (d *DeviceController) FindDevice(c *gin.Context) {
 	device := repository.FindById(c.Param(ParamIDName))
 	c.JSON(http.StatusOK, gin.H{ParamDataName: device})

@@ -51,3 +51,14 @@ func (repository *DeviceRepository) FindAll(page int64, size int64) []Device {
 	}
 	return devices
 }
+
+func (repository *DeviceRepository) CreateDevice(device Device) *Device {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+	defer cancel()
+	result, err := collection.InsertOne(ctx, device)
+	log.Println(result.InsertedID, " created")
+	if err != nil {
+		return nil
+	}
+	return &device
+}
