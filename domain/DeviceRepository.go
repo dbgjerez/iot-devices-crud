@@ -18,7 +18,9 @@ var collectionName = os.Getenv("MONGODB_DEVICE_COLLECTION")
 var client = config.NewConnection(server)
 var collection = client.Database(dbName).Collection(collectionName)
 
-const id string = "_id"
+const (
+	idKeyName string = "_id"
+)
 
 type DeviceRepository struct {
 }
@@ -26,7 +28,7 @@ type DeviceRepository struct {
 func (repository *DeviceRepository) FindById(idDevice string) *Device {
 	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
 	defer cancel()
-	query := bson.D{primitive.E{Key: id, Value: idDevice}}
+	query := bson.D{primitive.E{Key: idKeyName, Value: idDevice}}
 	var device Device
 	err := collection.FindOne(ctx, query).Decode(&device)
 	if err != nil {
@@ -61,4 +63,16 @@ func (repository *DeviceRepository) CreateDevice(device Device) *Device {
 		return nil
 	}
 	return &device
+}
+
+func (repository *DeviceRepository) DeleteDevice(idDevice string) {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+	defer cancel()
+	collection.DeleteOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}})
+}
+
+func (repository *DeviceRepository) UpdateDevice(idDevice string, device Device) {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+	defer cancel()
+	collection.ReplaceOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}}, device)
 }

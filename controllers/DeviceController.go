@@ -51,3 +51,19 @@ func (d *DeviceController) FindDevices(c *gin.Context) {
 	devices := repository.FindAll(page, size)
 	c.JSON(http.StatusOK, gin.H{ParamDataName: devices, ParamPageName: page, ParamSizeName: size})
 }
+
+func (d *DeviceController) DeleteDevice(c *gin.Context) {
+	repository.DeleteDevice(c.Param(ParamIDName))
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (d *DeviceController) UpdateDevice(c *gin.Context) {
+	var data domain.Device
+	if c.BindJSON(&data) != nil {
+		c.JSON(406, gin.H{"message": "Provide relevant fields"})
+		c.Abort()
+		return
+	}
+	repository.UpdateDevice(c.Param(ParamIDName), data)
+	c.JSON(http.StatusOK, gin.H{})
+}
