@@ -30,67 +30,79 @@ var repository = new(domain.DeviceRepository)
 func (d *DeviceController) CreateDevice(c *gin.Context) {
 	var data domain.Device
 	if c.BindJSON(&data) != nil {
-		c.JSON(406, gin.H{ParamErrorMsg: "Provide relevant fields"})
+		c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: "Provide relevant fields"})
 		c.Abort()
 		return
 	}
 	device, err := repository.CreateDevice(data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-	} else {
-		c.JSON(http.StatusCreated, gin.H{ParamDataName: device})
+		c.Abort()
+		return
 	}
+	c.JSON(http.StatusCreated, gin.H{ParamDataName: device})
+
 }
 
 func (d *DeviceController) FindDevice(c *gin.Context) {
 	device, err := repository.FindById(c.Param(ParamIDName))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-	} else if device == nil {
-		c.JSON(http.StatusNotFound, gin.H{ParamDataName: device})
-	} else {
-		c.JSON(http.StatusOK, gin.H{ParamDataName: device})
+		c.Abort()
+		return
 	}
+	if device == nil {
+		c.JSON(http.StatusNotFound, gin.H{ParamDataName: device})
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{ParamDataName: device})
 }
 
 func (d *DeviceController) FindDevices(c *gin.Context) {
 	page, pageErr := strconv.ParseInt(c.DefaultQuery(ParamPageName, PageDefaultValue), BaseDefault, BitSizeDefault)
 	size, sizeErr := strconv.ParseInt(c.DefaultQuery(ParamSizeName, SizeDefaultValue), BaseDefault, BitSizeDefault)
-	if pageErr != nil || sizeErr != nil {
-		if pageErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: pageErr})
-			c.Abort()
-		}
-		if sizeErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: sizeErr})
-			c.Abort()
-		}
-	} else {
-		devices, err := repository.FindAll(page, size)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-		} else {
-			c.JSON(http.StatusOK, gin.H{ParamDataName: devices, ParamPageName: page, ParamSizeName: size})
-		}
+	if pageErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: pageErr})
+		c.Abort()
+		return
 	}
+	if sizeErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: sizeErr})
+		c.Abort()
+		return
+	}
+	devices, err := repository.FindAll(page, size)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{ParamDataName: devices, ParamPageName: page, ParamSizeName: size})
 }
 
 func (d *DeviceController) DeleteDevice(c *gin.Context) {
 	err := repository.DeleteDevice(c.Param(ParamIDName))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-	} else {
-		c.JSON(http.StatusOK, gin.H{})
+		c.Abort()
+		return
 	}
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func (d *DeviceController) UpdateDevice(c *gin.Context) {
 	var data domain.Device
 	if c.BindJSON(&data) != nil {
-		c.JSON(406, gin.H{ParamErrorMsg: "Provide relevant fields"})
+		c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: "Provide relevant fields"})
 		c.Abort()
 		return
 	}
-	repository.UpdateDevice(c.Param(ParamIDName), data)
+	err := repository.UpdateDevice(c.Param(ParamIDName), data)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
+		c.Abort()
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{})
 }
