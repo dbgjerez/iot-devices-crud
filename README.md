@@ -14,6 +14,7 @@ docker build -t $user/iot-device-manager:$version .
 docker push 
 ```
 *$user: change with your own Docker Hub user*
+
 *$version: change with yout own microservice version*
 
 # Run
