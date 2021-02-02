@@ -79,8 +79,9 @@ func (d *DeviceController) DeleteDevice(c *gin.Context) {
 	err := repository.DeleteDevice(c.Param(ParamIDName))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
+	} else {
+		c.JSON(http.StatusOK, gin.H{})
 	}
-	c.JSON(http.StatusOK, gin.H{})
 }
 
 func (d *DeviceController) UpdateDevice(c *gin.Context) {
