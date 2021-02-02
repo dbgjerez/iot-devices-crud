@@ -47,11 +47,11 @@ func (d *DeviceController) FindDevice(c *gin.Context) {
 	device, err := repository.FindById(c.Param(ParamIDName))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-	}
-	if device == nil {
+	} else if device == nil {
 		c.JSON(http.StatusNotFound, gin.H{ParamDataName: device})
+	} else {
+		c.JSON(http.StatusOK, gin.H{ParamDataName: device})
 	}
-	c.JSON(http.StatusOK, gin.H{ParamDataName: device})
 }
 
 func (d *DeviceController) FindDevices(c *gin.Context) {
