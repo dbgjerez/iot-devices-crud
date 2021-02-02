@@ -37,7 +37,6 @@ func (d *DeviceController) CreateDevice(c *gin.Context) {
 	device, err := repository.CreateDevice(data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-		c.Abort()
 	} else {
 		c.JSON(http.StatusCreated, gin.H{ParamDataName: device})
 	}
@@ -55,16 +54,25 @@ func (d *DeviceController) FindDevice(c *gin.Context) {
 }
 
 func (d *DeviceController) FindDevices(c *gin.Context) {
-	page, err := strconv.ParseInt(c.DefaultQuery(ParamPageName, PageDefaultValue), BaseDefault, BitSizeDefault)
-	size, err := strconv.ParseInt(c.DefaultQuery(ParamSizeName, SizeDefaultValue), BaseDefault, BitSizeDefault)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: err})
+	page, pageErr := strconv.ParseInt(c.DefaultQuery(ParamPageName, PageDefaultValue), BaseDefault, BitSizeDefault)
+	size, sizeErr := strconv.ParseInt(c.DefaultQuery(ParamSizeName, SizeDefaultValue), BaseDefault, BitSizeDefault)
+	if pageErr != nil || sizeErr != nil {
+		if pageErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: pageErr})
+			c.Abort()
+		}
+		if sizeErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{ParamErrorMsg: sizeErr})
+			c.Abort()
+		}
+	} else {
+		devices, err := repository.FindAll(page, size)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
+		} else {
+			c.JSON(http.StatusOK, gin.H{ParamDataName: devices, ParamPageName: page, ParamSizeName: size})
+		}
 	}
-	devices, err := repository.FindAll(page, size)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{ParamErrorMsg: err})
-	}
-	c.JSON(http.StatusOK, gin.H{ParamDataName: devices, ParamPageName: page, ParamSizeName: size})
 }
 
 func (d *DeviceController) DeleteDevice(c *gin.Context) {
