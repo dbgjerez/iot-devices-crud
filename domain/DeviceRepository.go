@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"iot-devices-crud/config"
-	"log"
 	"os"
 	"time"
 
@@ -14,7 +13,7 @@ import (
 
 var server = os.Getenv("MONGODB_HOST")
 var dbName = os.Getenv("MONGODB_DEVICE_DB")
-var collectionName = os.Getenv("MONGODB_DEVICE_COLLECTION")
+var collectionName = os.Getenv("MONGODB_DEVICE_COLLECTION_NAME")
 var client = config.NewConnection(server)
 var collection = client.Database(dbName).Collection(collectionName)
 
@@ -25,23 +24,23 @@ const (
 type DeviceRepository struct {
 }
 
-func (repository *DeviceRepository) FindById(idDevice string) *Device {
-	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+func (repository *DeviceRepository) FindById(idDevice string) (*Device, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MongoDefaultTimeout*time.Second)
 	defer cancel()
 	query := bson.D{primitive.E{Key: idKeyName, Value: idDevice}}
 	var device Device
 	err := collection.FindOne(ctx, query).Decode(&device)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &device
+	return &device, nil
 }
 
-func (repository *DeviceRepository) FindAll(page int64, size int64) []Device {
+func (repository *DeviceRepository) FindAll(page int64, size int64) ([]Device, error) {
 	filter := bson.D{}
 	paginatedDate, err := mongopagination.New(collection).Limit(size).Page(page).Filter(filter).Find()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	var devices []Device
 	var device *Device
@@ -49,30 +48,36 @@ func (repository *DeviceRepository) FindAll(page int64, size int64) []Device {
 		if marshallErr := bson.Unmarshal(raw, &device); marshallErr == nil {
 			devices = append(devices, *device)
 		}
-
 	}
-	return devices
+	return devices, nil
 }
 
-func (repository *DeviceRepository) CreateDevice(device Device) *Device {
-	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+func (repository *DeviceRepository) CreateDevice(device Device) (*Device, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MongoDefaultTimeout*time.Second)
 	defer cancel()
-	result, err := collection.InsertOne(ctx, device)
-	log.Println(result.InsertedID, " created")
+	_, err := collection.InsertOne(ctx, device)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &device
+	return &device, nil
 }
 
-func (repository *DeviceRepository) DeleteDevice(idDevice string) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+func (repository *DeviceRepository) DeleteDevice(idDevice string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MongoDefaultTimeout*time.Second)
 	defer cancel()
-	collection.DeleteOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}})
+	_, err := collection.DeleteOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (repository *DeviceRepository) UpdateDevice(idDevice string, device Device) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.MONGODB_TIMEOUT_SEC*time.Second)
+func (repository *DeviceRepository) UpdateDevice(idDevice string, device Device) error {
+	ctx, cancel := context.WithTimeout(context.Background(), config.MongoDefaultTimeout*time.Second)
 	defer cancel()
-	collection.ReplaceOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}}, device)
+	_, err := collection.ReplaceOne(ctx, bson.D{primitive.E{Key: idKeyName, Value: idDevice}}, device)
+	if err != nil {
+		return err
+	}
+	return nil
 }
