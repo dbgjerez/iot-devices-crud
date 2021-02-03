@@ -9,6 +9,7 @@ import (
 	mongopagination "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var server = os.Getenv("MONGODB_HOST")
@@ -29,7 +30,14 @@ func (repository *DeviceRepository) FindById(idDevice string) (*Device, error) {
 	defer cancel()
 	query := bson.D{primitive.E{Key: idKeyName, Value: idDevice}}
 	var device Device
-	err := collection.FindOne(ctx, query).Decode(&device)
+	cur := collection.FindOne(ctx, query)
+	if cur.Err() != nil {
+		if cur.Err() == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, cur.Err()
+	}
+	err := cur.Decode(&device)
 	if err != nil {
 		return nil, err
 	}
