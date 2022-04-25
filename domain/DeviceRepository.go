@@ -2,10 +2,10 @@ package domain
 
 import (
 	"context"
-	"iot-devices-crud/config"
 	"os"
 	"time"
 
+	"github.com/dbgjerez/iot-devices-crud/config"
 	mongopagination "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

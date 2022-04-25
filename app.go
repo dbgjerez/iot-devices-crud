@@ -1,8 +1,7 @@
 package main
 
 import (
-	"iot-devices-crud/controllers"
-
+	"github.com/dbgjerez/iot-devices-crud/controllers"
 	"github.com/gin-gonic/gin"
 )
 

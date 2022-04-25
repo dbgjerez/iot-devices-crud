@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"iot-devices-crud/domain"
 	"net/http"
 	"strconv"
 
+	"github.com/dbgjerez/iot-devices-crud/domain"
 	"github.com/gin-gonic/gin"
 )
 
