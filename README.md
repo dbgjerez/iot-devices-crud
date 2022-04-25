@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/dbgjerez/iot-devices-crud)](https://goreportcard.com/report/github.com/dbgjerez/iot-devices-crud)
+
 # IOT Devices Management
 Application to manage iot devices configuration.
 
